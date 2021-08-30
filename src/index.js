@@ -20,6 +20,8 @@ const waitOnTimeout = process.env.WAIT_ON_TIMEOUT
 const isDebug = () =>
   process.env.DEBUG && process.env.DEBUG.indexOf('start-server-and-test') !== -1
 
+const endServerAfterTest = true && !(process.env.END_SERVER == "false")
+
 const isInsecure = () => process.env.START_SERVER_AND_TEST_INSECURE
 
 function waitAndRun ({ start, url, runFn }) {
@@ -102,7 +104,9 @@ function waitAndRun ({ start, url, runFn }) {
   return waited
     .tapCatch(stopServer)
     .then(runFn)
-    .finally(stopServer)
+    .finally(() => {
+      if (endServerAfterTest) { stopServer(); }
+    })
 }
 
 const runTheTests = testCommand => () => {
